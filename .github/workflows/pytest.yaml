@@ -11,25 +11,30 @@ on:
 
 jobs:
   call-run-python-tests-unit:
-    uses: openclimatefix/.github/.github/workflows/python-test.yml@issue/pip-all
-    with:
-      # pytest-cov looks at this folder
-      pytest_cov_dir: "quartz_solar_forecast"
-      os_list: '["ubuntu-latest"]'
-      python-version: "['3.11']"
-      extra_commands: echo "HF_TOKEN=${{ vars.HF_TOKEN }}" > .env
-      pytest_numcpus: '1'
-      test_dir: tests/unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-  call-run-python-tests-all:
-    # only run on push, not external PR
-    uses: openclimatefix/.github/.github/workflows/python-test.yml@issue/pip-all
-    if: github.event_name == 'push'
-    with:
-      # pytest-cov looks at this folder
-      pytest_cov_dir: "quartz_solar_forecast"
-      os_list: '["ubuntu-latest"]'
-      python-version: "['3.11']"
-      extra_commands: echo "HF_TOKEN=${{ vars.HF_TOKEN }}" > .env
-      pytest_numcpus: '1'
-      test_dir: tests
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest \
+            --maxfail=1 \
+            --disable-warnings \
+            --cov=quartz_solar_forecast \
+            --cov-report=xml \
+            tests/unit
