@@ -20,7 +20,7 @@ if 'redirect_url' not in st.session_state:
     st.session_state.redirect_url = ""
 
 # Set up the base URL for the FastAPI server
-FASTAPI_BASE_URL = "http://localhost:8000"
+FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL")
 
 # Get the directory of the current script
 script_dir = os.path.dirname(os.path.abspath(__file__))

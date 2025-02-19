@@ -33,8 +33,6 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    volumes:
-      - .:/app
     depends_on:
       - open-meteo-api
       - open-meteo-sync
